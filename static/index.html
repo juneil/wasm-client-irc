@@ -2,9 +2,62 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>My Rust + Webpack project!</title>
+    <title>IRC Client</title>
   </head>
   <body>
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            height: 100%;
+            background: black;
+            display: flex;
+            margin: 0;
+        }
+        #wrapper {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+        #sidebar {
+            height: 100%;
+            width: 300px;
+        }
+        #content {
+            margin: 10px 10px 0 10px;
+            background: #222;
+            border: 1px solid #666;
+            flex: 1;
+        }
+        #input {
+            height: 30px;
+            display: flex;
+            padding: 10px;
+        }
+        #statusbar {
+            height: 30px;
+        }
+        #form_input {
+            flex: 1;
+            background: #333;
+            border: 1px solid #666;
+            color: aliceblue;
+            outline: none;
+            padding: 5px;
+            font-size: 13px;
+        }
+    </style>
+
+    <div id="wrapper">
+        <div id="content"></div>
+        <div id="input">
+            <input type="text" id="form_input">
+        </div>
+        <div id="statusbar"></div>
+    </div>
+    <div id="sidebar"></div>
+
     <script src="index.js"></script>
   </body>
 </html>
