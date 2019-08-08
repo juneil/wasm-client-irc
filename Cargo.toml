@@ -43,7 +43,10 @@ features = [
     'HtmlBodyElement',
     'HtmlElement',
     'HtmlInputElement',
-    "CssStyleDeclaration"
+    "CssStyleDeclaration",
+    "Event",
+    "EventTarget",
+    "KeyboardEvent"
 ]
 
 # The `console_error_panic_hook` crate provides better debugging of panics by

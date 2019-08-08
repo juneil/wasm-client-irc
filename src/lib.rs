@@ -1,8 +1,17 @@
 use wasm_bindgen::prelude::*;
-
-mod console;
 pub mod element;
 mod input;
+
+#[macro_export]
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format!("[wasm] {}", &format_args!($($t)*).to_string()).to_string()))
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn log(s: &str);
+}
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -17,8 +26,13 @@ pub fn main_js() -> Result<(), JsValue> {
 
     console_log!("version {}", VERSION);
 
-    let _: Option<()> = element::Element::get_body()
-        .and_then(|body| body.style().set_property("background-color", "black").ok());
+    // let elem = element::Element::query_selector("#form_input")
+    //     .unwrap()
+    //     .add_event_listener("keypress", move |e: web_sys::KeyboardEvent| {
+    //          console_log!("{:?}", e.key_code());
+    //     });
+
+    let i = input::InputForm::new();
 
     Ok(())
 }
