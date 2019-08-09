@@ -1,16 +1,13 @@
 use wasm_bindgen::prelude::*;
 pub mod element;
 mod input;
+mod content;
 
 #[macro_export]
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format!("[wasm] {}", &format_args!($($t)*).to_string()).to_string()))
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    pub fn log(s: &str);
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_2(&format!("[wasm]").into(), &format!($( $t )* ).into());
+    }
 }
 
 #[cfg(feature = "wee_alloc")]
@@ -24,15 +21,14 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-    console_log!("version {}", VERSION);
+    log!("version {}", VERSION);
 
-    // let elem = element::Element::query_selector("#form_input")
-    //     .unwrap()
-    //     .add_event_listener("keypress", move |e: web_sys::KeyboardEvent| {
-    //          console_log!("{:?}", e.key_code());
-    //     });
-
-    let i = input::InputForm::new();
+    input::InputForm::new();
+    let c = content::Content::new();
+    c.insert_message("YOloOo oOOO ddx dsddddd eOOO ddx dsddddd eOOO ddx dsddddd eOO ddx x dsddddd e", None);
+    c.insert_message("YOloOo oOOO ddx dsddddd eOOO ddx dsddddd eOOO d", Some("Juneil"));
+    c.insert_message("YOloOo oOOO ddx dsddddd eOOO ddx dsddddd eOOO d", Some("Juneil"));
+    c.insert_message("YOloOo oOOO ddx dsddddd eOOO ddx dsddddd eOOO ddx dsddddd eOO ddx x dsddddd e", None);
 
     Ok(())
 }
