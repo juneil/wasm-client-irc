@@ -70,3 +70,16 @@ impl Element {
         }
     }
 }
+
+pub fn ws_add_event_listener<T, U>(ws: &web_sys::WebSocket, event_name: &str, handler: T)
+    where
+        T: 'static + FnMut(U),
+        U: 'static + wasm_bindgen::convert::FromWasmAbi
+    {
+        let cb = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
+        let el_et: EventTarget = ws.clone().into();
+        el_et
+            .add_event_listener_with_callback(event_name, cb.as_ref().unchecked_ref())
+            .unwrap();
+        cb.forget();
+    }
