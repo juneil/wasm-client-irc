@@ -3,13 +3,13 @@ use super::element;
 use super::log;
 
 #[derive(Debug, Clone)]
-pub struct InputForm {
+pub struct Input {
     element: Option<element::Element>
 }
 
-impl InputForm {
-    pub fn new() -> InputForm {
-        let mut input = InputForm {
+impl Input {
+    pub fn new() -> Input {
+        let mut input = Input {
             element: element::Element::query_selector("#form_input")
         };
         input.init_send();

@@ -24,30 +24,25 @@ pub fn main_js() -> Result<(), JsValue> {
 
     log!("version {}", VERSION);
 
-    input::InputForm::new();
-    let c = content::Content::new();
-
-    init_ws(c);
+    init_ws();
 
     Ok(())
 }
 
-fn init_ws(content: content::Content) {
-    if let Ok(ws) = web_sys::WebSocket::new("ws://localhost:8081") {
+fn init_ws() {
+    if let Ok(ws) = web_sys::WebSocket::new("ws://juneil.me:9980") {
+        let irc = irc::IRC::new();
         let mut queue: Vec<String> = vec!();
         element::ws_add_event_listener(&ws, "open", |_: web_sys::Event| log!("WS open"));
         element::ws_add_event_listener(&ws, "close", |_: web_sys::Event| log!("WS closed"));
         element::ws_add_event_listener(&ws, "message", move |event: web_sys::MessageEvent| {
             if let Some(data) = event.data().as_string() {
                 queue.push(data);
-                // content.insert_message(data.as_ref(), None);
             }
             let (list, remaining) = merge_queue(queue.clone());
             queue = vec!(remaining);
             for item in list {
-                content.insert_message(item.as_ref(), None);
-                let cmd = irc::Command::new(item);
-                log!("{:?}", cmd);
+                irc.process_command(item);
             }
         });
     };
