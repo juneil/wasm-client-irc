@@ -31,7 +31,10 @@ pub fn main_js() -> Result<(), JsValue> {
 
 fn init_ws() {
     if let Ok(ws) = web_sys::WebSocket::new("ws://juneil.me:9980") {
-        let irc = irc::IRC::new();
+        let ws_c = ws.clone();
+        let mut irc = irc::IRC::new(move |msg| {
+            ws_c.send_with_str(msg.as_ref()).ok();
+        });
         let mut queue: Vec<String> = vec!();
         element::ws_add_event_listener(&ws, "open", |_: web_sys::Event| log!("WS open"));
         element::ws_add_event_listener(&ws, "close", |_: web_sys::Event| log!("WS closed"));

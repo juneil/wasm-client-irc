@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use super::input;
 use super::content;
+use super::log;
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"(?m)^(?::(([^@!\s]*)(?:(?:!([^@]*))?@([^\s]*))?)\s)?([^\s]+)((?:\s[^:\s][^\s]*){0,14})(?:\s:?(.*))?$").unwrap();
@@ -35,29 +36,53 @@ impl <'t> Command<'t> {
     }
 }
 
-pub struct IRC {
-    input: input::Input,
-    content: content::Content
+pub enum MessageStyle {
+    Normal,
+    Error
 }
 
-impl IRC {
-    pub fn new() -> IRC {
+pub struct IRC<F> {
+    input: input::Input,
+    content: content::Content,
+    connected: bool,
+    nickname: String,
+    handler: F
+}
+
+impl<F> IRC<F> where F: FnMut(String) -> () {
+    pub fn new(handler: F) -> IRC<F> {
         IRC {
             input: input::Input::new(),
-            content: content::Content::new()
+            content: content::Content::new(),
+            connected: false,
+            nickname: String::from("Juneil"),
+            handler: handler
         }
     }
 
-    pub fn get_content(&self) -> content::Content {
-        self.content.clone()
+    pub fn send(&mut self, data: String) {
+        log!("send: {}", data);
+        (self.handler)(data);
     }
 
-    pub fn process_command(&self, raw: String) {
+    pub fn register(&mut self) {
+        self.send(format!("USER {} * * :{}", self.nickname, self.nickname));
+        self.send(format!("NICK {}", self.nickname));
+        self.connected = true;
+    }
+
+    pub fn process_command(&mut self, raw: String) {
+        if self.connected == false {
+            self.register();
+        }
         if let Some(command) = Command::new(raw.as_ref()) {
             match command {
-                Command { command: Some("ERROR"), .. } =>
-                    self.content.insert_message(command.data.unwrap_or("").as_ref(), None),
-                _ => self.content.insert_message("///", None)
+                Command { command: Some("ERROR"), .. } => {
+                    self.connected = false;
+                    self.content.insert_message(command.data.unwrap_or("").as_ref(), None, Some(MessageStyle::Error))
+                },
+                Command { command: Some("PING"), .. } => self.send(format!("PONG :{}", command.data.unwrap_or(""))),
+                _ => ()
             }
         }
     }
